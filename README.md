@@ -1,8 +1,7 @@
 <div align="center">
   <img src="https://adocs.vercel.app/logo-big.svg" width="100px" height="100px" alt="adocs logo" />
-  <h1>Adocs</h1>
+  <h1>Docuemntación nextcloud</h1>
   <p>A docs template built using <a href="https://vitepress.vuejs.org">VitePress</a></p>
-  <p>This repository serves as a resource for the tutorial, <a href="https://www.freecodecamp.org/news/how-to-build-a-modern-documentation-site-with-vitepress/">How to Build a Modern Documentation Site with VitePress</a> posted on freeCodeCamp</p>
 </div>
 
 ## Run project locally
@@ -10,9 +9,9 @@
 Use this command below to boot this project locally.
 
 ```bash
-git clone https://github.com/Evavic44/adocs.git
+git clone https://github.com/Alvarad0/nextcloud-docs.git
 
-cd adocs
+cd docs
 
 npm install
 
