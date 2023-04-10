@@ -36,3 +36,16 @@ details {
   cursor: pointer;
   font-weight: bold;
 }
+
+.vp-doc th, 
+.vp-doc td {
+  padding: 0 5px;
+}
+
+.vp-doc .custom-block {
+  margin-bottom: 1.5rem;
+}
+
+mark {
+  background-color: rgba(255, 135, 23, 0.25);
+}

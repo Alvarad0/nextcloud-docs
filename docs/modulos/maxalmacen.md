@@ -25,545 +25,253 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 | Días para Surtir de CEDIS **Frio** x Clasificación | ```de_almac.num_dat in ('D5','D6','D7','D8')``` | Cuando se desea definir los máximos por clasificación de los artículos, hay un cron job que los almacena en ```ma_exist.clasif``` y en base a eso se calculan los A,B,C,D respectivamente |
 
 ## Botones
-
 <details>
   <summary><div class="btns"><img src='/maxalmacen/btn_bitacora.png' /> Bitacora Máximos</div></summary>
+
   Esta función permite consultar una bitacora de cambios de máximos, cuando el cambio se realiza desde el modulo Orden de Compra, se puede filtrar por rango de fechas, por artículo y por clave de almacén, la siguiente imagen es un ejemplo de como se visualiza la información
 
   ![Grid Bitacora de maximos](/maxalmacen/bitacora_maximos.jpg)
+  :::details Query
+  ```sql
+    select f_movto, cve_alm, cve_art, max_ant, max_nue, cve_usu, obser from ma_bitmax 
+    where f_movto between to_date('07/04/2023', '%d/%m/%Y') and to_date('07/04/2023', '%d/%m/%Y') and cve_alm='301'
+  ```
+  :::
 </details>
 
 <details>
   <summary><div class="btns"><img src='/maxalmacen/btn_paqueteria.png' /> Artículos en Paqueria</div></summary>
-  Esta función permite consultar un listado de todos los articulos que dependen de una clave maestra, por ejmplo todos los .01, .02, etc. La siguiente imagen es un ejemplo de como se visualiza la información
+
+  Esta función permite consultar un listado de todos los articulos que dependen de una clave maestra, por ejemplo todos los .01, .02, etc. La siguiente imagen es un ejemplo de como se visualiza la información
 
   ![Grid Paqueria](/maxalmacen/paqueteria.png)
+  :::details Query
+  ```sql
+    select a.cve_art,trim(b.descri)||' '||b.pza_caj||'/'||b.presen as articulo,a.dato,
+    c.clave,trim(c.descri)||' '||c.pza_caj||'/'||c.presen as c_madre
+    from de_artic a, ma_artic b, ma_artic c
+    where num_dat='MN' and dato like '%A%'
+    and b.clave=a.cve_art
+    and c.clave=a.cve_art[1,6]
+  ```
+  :::
 </details>
 
 <details>
-  <summary><div class="btns"><img src='/maxalmacen/btn_paqueteria.png' /> Tendencia de Artículos</div></summary>
-  Esta función permite consultar la tendencia de los articulos en base a la venta, en la parte superior del grid se encuentra una barra para seleccionar el rango de tendencia que se desea ver, por ejemplo si selecciona de -40 a 40, se mostraran los articulos que tengan tendencia de -100 a -40 y de 40 a 100, es decir se muestran los extremos del rango seleccionado.
+  <summary><div class="btns"><img src='/maxalmacen/btn_tendencia.png' /> Tendencia de Artículos</div></summary>
 
-  El grid cuenta con dos dos opciones en su menu, al hacer clic derecho sobre un artículo se podra consultar el Desplazamiento Diario y cambiar la Clasficacion
+  Esta función permite consultar la tendencia de los articulos en base a la venta de los ultimos 60 días, en la parte superior del grid se encuentra una barra para seleccionar el rango de tendencia que se desea ver, por ejemplo si selecciona de -40 a 40, se mostraran los articulos que tengan tendencia de -100 a -40 y de 40 a 100, es decir se muestran los extremos del rango seleccionado
 
-  ![Grid Paqueria](/maxalmacen/paqueteria.png)
+  El grid cuenta con dos dos opciones en su menu, al hacer clic derecho sobre un artículo se podra consultar el [Desplazamiento Diario](#desplDiario) y [Cambiar Clasficacion](#changeClasif)
+
+  ![Grid Paqueria](/maxalmacen/tendencia.png)
+  :::details Query
+  ```sql
+    select clave,articulo,imp_vta,round(( ((n*sum_xy)-(sum_x*sum_y))/(sqrt(((n*sum_x2)-(sum_x*sum_x))*((n*sum_y2)-(sum_y*sum_y)))) )*100,2) as tendencia
+    from (
+    select clave, articulo, sum(imp_vta) as imp_vta,count(x) as n,sum(x) as sum_x, sum(y) as sum_y, sum(x*y) as sum_xy, sum(x*x) as sum_x2, sum(y*y) as sum_y2 from (
+    select cve_art as clave, trim(descri)||' '||pza_caj||'/'||presen as articulo, can_vta as y,imp_vta as imp_vta, (year(today)-year(f_movto)||lpad(month(f_movto),2,'00')||lpad(day(f_movto),2,'00'))*1 as x
+    from cn_artvpd, ma_artic where clave=cve_art
+    and f_movto between today-60 and today
+    and cve_vnd in (select cve_vnd from de_vendd where num_dat='AV' and dato='594')) group by 1,2) where (((n*sum_x2)-(sum_x*sum_x))*((n*sum_y2)-(sum_y*sum_y)))>0
+    order by 4 asc
+  ```
+  :::
+</details>
+
+<details>
+  <summary><div class="btns"><img src='/maxalmacen/btn_excepciones.png' /> Excepciones de Artículos <a id="excepcionesArt"></a></div></summary>
+
+  Esta función permite agregar los artículos a un periodo para que no se tomen en cuenta para el cálculo del máximo sugerido, es utilizada para agregar los artículos de temporalidad.
+  Primero se tiene que seleccionar un periodo y luego subir el archivo de Excel con las claves, el formato de las columnas es: Cve. Art y Nombre de Articulo. Cuando el archivo se procesa se muestra un grid con las claves y al final de las columnas se muestra un icono para eliminar el artículo (A). Y al hacer clic en el botón Guardar Artículos se insertarán los artículos en el periodo seleccionado. La función solo la pueden aplicar los usuarios que tienen asignado el permiso ```usrinsert```
+
+  ![Grid Paqueria](/maxalmacen/excepciones.png)
+  | Columna | Descripción |
+  | :----    | :----    |
+  | cve_art | Almacena la clave del articulo |
+  | num_per | Almacena el periodo |
+</details>
+
+<details>
+  <summary><div class="btns"><img src='/maxalmacen/btn_directos.png' /> Directos Cedis</div></summary>
+
+  Esta función consulta todos los artículos que pertenecen a proveedores directos, clasificados como proveedor principal, mostrando la existencia en Cedis, en Tienda y el importe de venta por artículo. Para poder realizar la consulta se debe seleccionar el periodo
+
+  ![Grid Paqueria](/maxalmacen/excepciones.png)
+  :::details Query
+  ```sql
+    select d.existe as exis_cedis, e.existe as exis_tda, trim(a.clave) as cve_prv, trim(a.descri) as proveedor, trim(c.cve_art) as cve_art, trim(h.descri)||' '||h.pza_caj||'/'||h.presen as articulo,
+    d.cve_alm as alm_cedis,d.maximo as max_cedis, g.imp_vta
+    from ma_provd a, de_provd b, ma_exist e,de_vendd f,cn_artvnd g,ma_artic h, ma_prvar c
+    left join ma_exist d on (d.cve_alm='301' and d.cve_art=c.cve_art and d.maximo>0)
+    where  b.cve_prv=a.clave and b.num_dat='74' and b.dato='S'
+    and c.cve_prv=a.clave and c.tip_prv='P'
+    and e.cve_alm='594' and e.cve_art=c.cve_art
+    and f.num_dat='AV' and f.dato=e.cve_alm
+    and g.cve_vnd=f.cve_vnd and g.cve_art=c.cve_art and g.num_per='202302'
+    and h.clave=c.cve_art
+  ```
+  :::
+</details>
+
+<details>
+  <summary><div class="btns"><img src='/maxalmacen/btn_clasificacion.png' /> Cambiar Clasificación</div></summary>
+
+  Esta función permite reclasificar los artículos que no pertenecen a proveedores directos y que estén configurados como inventariarles, la clasificación es en base a la venta que hubo en el periodo seleccionado, de esta menare si en el periodo aún no están clasificados los artículos se podrá asignar una clasificación de periodos pasados para la administración de máximos  
+
+  :::details Query
+  ```sql
+    --Tabla: ma_exist.clasif
+  ```
+  :::
+</details>
+
+<details>
+  <summary><div class="btns"><img src='/maxalmacen/btn_maxmin.png' /> Actualizar Máximo/Mínimo masivo</div></summary>
+
+  Esta función permite actualizar de manera masiva el máximo y mínimo de los artículos, se debe agregar todas las claves en un archivo de Excel, la estructura de columnas es la siguiente: Cve. Alm, Cve_Art, Máximo y Mínimo, después de seleccionar el archivo se debe hacer clic en el botón **Subir archivo** para procesar la información que se mostrara en un grid, donde se podrá revisar que la información sea correcta y si se necesita eliminar un artículo, se podrá hacer haciendo clic en el icono de eliminar 
+
+  :::details Query
+  ```sql
+    --Tabla: ma_exist.maximo, ma_exist.minimo
+  ```
+  :::
 </details>
 
 ## Desarrollo
 
-La consulta de datos se realiza en base a los filtros seleccionados, el único filtro obligatorio es el de almacén si se deja en blanco este filtro se mostrara un mensaje de alerta
-
-```bash
-mkdir project-name
-cd project-name
-```
-
-Next you need to initialize with your preferred package manager. I'll be using NPM for the rest of this guide.
-
-```bash
-npm init
-// or use this command if you want to skip all the questions
-npm init -y
-```
-
-If you used the first command, you'll be prompted with certain questions, complete them as appropriate. After a successful operation, you should have a package.json file in your root directory; This is where the VitePress dev dependency will be installed.
-
-## Step. 2: Install VitePress
-
-Next step is to add VitePress and Vue as dev dependencies to your project.
-
-You've successfully installed VitePress and Vue and added it as a dev dependency. Now you can start creating creating your respective doc files, but before you do that, I believe it's essential to explain how VitePress works.
-
-## How does VitePress work?
-
-VitePress makes use of Markdown `.md` files for it's markup which is automatically converted into static HTML. In other for this to work, a special folder called `docs` is created in the root directory.
-
-This folder behaves similar to the `pages` folder in NextJS, where any `.js` file created in the directory is automatically treated as a web page. In this case a file called `index.md` will be the treated as `index.html` and serve as the root of your docs template.
-
-Now you understand how that works, you can now create your respective doc files.
-
-## Step 3. Create respective files
-
-You can create the docs folder and the index.md file manually, or you can do it with the terminal like a hacker.
-
-```bash
-mkdir docs && echo '# Hello VitePress' > docs/index.md
-```
-
-This command is simply creating a folder called docs and adding an index.md file containing a h1 element that says, "Hello World".
-
-![create respective files](https://user-images.githubusercontent.com/62628408/201539157-0b662a53-4aad-4ce5-b22c-228aa618d7b8.png)
-
-With this, you can boot up your dev environment to see what has been created so far.
-
-## Step 4: Boot up dev environment
-
-In other to run your docs locally, you need to add the following scripts inside the package.json file. Simply copy the code below and replace it with the "script" object.
-
-```js
-// package.json
-"scripts": {
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:serve": "vitepress serve docs"
-  },
-```
-
-Finally, the documentation site can be served on a local server by running the command below:
-
-```bash
-npm run docs:dev
-```
-
-This will start a hot-reloading development server at `http://localhost:5173`, and you can visit it to see your docs site.
-
-### Output
-
-![boot-dev-server](https://user-images.githubusercontent.com/62628408/201539308-bfc07160-bac2-4e91-ae90-46f9f3acd3cc.png)
-
-All you had to do was add the markup and VitePress handled the looks from it's template engine. In the next session, you'll learn how you can customize the docs to fit your needs.
-
-## How to customize your docs
-
-First create a `.vitepress` folder inside the docs directory you created earlier on. This is where all VitePress-specific files will be placed. Inside this new directory, you need a `config.js` file. Again, you can use the terminal command as a hacker.
-
-```bash
-mkdir .vitepress && touch .vitepress/config.js
-```
-
-To test this config file, you can start by changing the meta title and description of your docs site. Copy this markup and paste into the `config.j`s file.
-
-```js
-// .vitepress/config.js
-export default {
-  title: "Adocs",
-  description: "An awesome docs template built by me",
-};
-```
-
-If you check the dev tools, you should see the changes in the meta title and description.
-
-![title-and-description](https://user-images.githubusercontent.com/62628408/201539383-8b05db4c-dc00-4919-8bbc-f29cc77b2a00.png)
-
-## Title and Logo
-
-In other to change the logo title and add an image, copy the markup below and paste it into a new object called `themeConfig` inside the same `config.js` file. This will overwrite the current title and add a logo your docs site.
-
-```js
-// config.js
-export default {
-  themeConfig: {
-    logo: "/logo.svg",
-    siteTitle: "Adocs",
-  },
-};
-```
-
-For the image source, you can pass in an image URL or specify the path to a local image. To do it locally, make sure you place the image within the `public` directory.
-
-### Output
-
-![logo-and-title](https://user-images.githubusercontent.com/62628408/201539442-123b92cc-3c59-423d-a183-280ab8eb23be.png)
-
-::: warning
-Note: files in the public directory are served at the root path.
-So instead of `../public/logo.svg`, just use `/logo.svg`.
-:::
-
-## Navbar
-
-Customizing the `Navbar` is a pretty straightforward process as well. Inside your `themeConfig` file, paste the markup below. Here we have an object that contains two properties. The anchor text `text`, and the path, `link` defines the URL path.
-
-```js
-// .vitepress/config.js
-{
-  // ...
-   nav: [
-    { text: "About", link: "/about" },
-    { text: "Contact", link: "/contact" },
-    { text: "Guide", link: "/guide" },
-    { text: "Configs", link: "/configs" },
-    { text: "Changelog", link: "https://github.com/Evavic44" },
-  ],
-  // ...
-}
-```
-
-Essentially navigating to `http://localhost:5173/about` should take you to an about page(though we haven't created that yet).
-
-### Output
-
-![navbar](https://user-images.githubusercontent.com/62628408/201539594-8e8f1d80-19dc-4335-b82b-fee5a23a5d30.png)
-
-Navigation links can also be dropdown menus too. To add one, simply replace any of the links property with the items object which contains an array of links.
-
-```js
-// .vitepress/config.js
-{
-  text: "Changelog",
-  items: [
-   { text: "v0.0.1", link: "/item-1" },
-   { text: "v0.0.2", link: "/item-2" },
-   { text: "v0.0.3", link: "/item-3" },
-  ],
-},
-```
-
-Now changelog will become a dropdown menu with the respective links you pass inside.
-
-### Output
-
-![dropdown-menu](https://user-images.githubusercontent.com/62628408/201539670-330a0e0f-ed81-46b0-87cf-0d2b0b0c387b.png)
-
-## Social Icons
-
-Navigation menus usually have social icons visitors can use to visit your social platforms. To add that, define a new object called socialLinks inside themeConfig and simply pass in the social icon and the link you want it to navigate to.
-
-```js
-// .vitepress/config.js
-socialLinks: [
-  { icon: "github", link: "https://github.com/Evavic44/adocs" },
-  { icon: "twitter", link: "https://twitter.com/victorekea" },
-  { icon: "discord", link: "", target: "_blank" },
-];
-```
-
-By default only 7 popular icons are provided. If you want to add a custom icon, use the SVG property to define an svg image.
-
-```js
-}
-  "discord"
-  "facebook"
-  "github"
-  "instagram"
-  "linkedin"
-  "slack"
-  "twitter"
-  "youtube"
-  { svg: string };
-{
-```
-
-::: warning
-For the SVG icon, make sure you add the role="img" property, this allows the string convert it properly.
-:::
-
-![navbar-2](https://user-images.githubusercontent.com/62628408/201539773-a50280b7-91d4-4d4a-9ba7-a5c227fb9742.png)
-
-## Sidebar
-
-VitePress also comes with built-in components like sidebar menus. To add a sidebar, create an object called sidebar and inside we add nested objects that takes in three values; the nested title, collapsible functionality (Default is set to true) and the nested links.
-
-```js
-// .vitepress/config.js
-sidebar: [
-    {
-      text: "Section A",
-      collapsible: true,
-      items: [
-        { text: "Introduction", link: "/introduction" },
-        { text: "Getting Started", link: "/getting-started" },
-      ],
-    },
-    {
-      text: "Section B",
-      collapsible: false,
-      items: [
-        { text: "Introduction", link: "/introduction" },
-        { text: "Getting Started", link: "/getting-started" },
-      ],
-    },
-    {
-      text: "Section C",
-      collapsible: true,
-      items: [
-        { text: "Introduction", link: "/introduction" },
-        { text: "Getting Started", link: "/getting-started" },
-      ],
-    },
-  ],
-```
-
-By adding collapsible: "true" to the sidebar object, it shows a toggle button to hide/show each section. You can create as much sections as you want.
-
-### Output
-
-![sidebar-2](https://user-images.githubusercontent.com/62628408/201539859-92dffaf2-8886-4b11-86de-dd4847632536.png)
-
-You can see section B is not collapsible and we have that aesthetic next page button on the bottom of the page.
-
-## Page Routing
-
-As explained earlier, VitePress automatically converts every `.md` file inside the root of the docs directory to static html that can be accessed in the address bar. For instance the `index.md` is converted to `index.html`, and `about.md`, about.html and so on.
-
-Since you've created your nav links and pointed them to their respective URLs, you can access these pages easily by creating them.
-
-```
-docs/
-├── .vitepress/
-│   └── config.js
-├── public/
-│   └── logo.svg
-├── about.md
-├── contact.md
-├── guide.md
-├── configs.md
-└── get-started.md
-```
-
-Create these files inside your docs folder and add a simple markup inside them just to see how this works. This page is basic markdown so all your markdown syntax like links, code blocks, headings, etc works here.
-
-Just for testing purposes, copy this markdown content and paste it inside any of the `.md` file you just created.
-
-```md
-# About
-
-Welcome to the about page.
-
-This markdown supports html elements like the `p` tag coupled with inline styles
-
-<p style="color: #ff7340; border: 1px solid rgba(255, 135, 23, 0.25); border-radius:5px; padding: 1rem;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
-
-Even satire code snippets with syntax highlighting are also supported. 😅
-
-const lang = prompt("What is your favorite programming language?");
-
-(lang === "JavaScript") | (lang === "javascript") | (lang === "js")
-? alert("JavaScript to the world! 🚀🟡")
-: alert(`We don't permit such languages here 💩`);
-
-Of course, images are not left out.
-
-<img src="/logo.svg" alt="adocs logo">
-```
-
-### Output
-
-![page-routing](https://user-images.githubusercontent.com/62628408/201539985-9308aaff-e98b-44e0-ad48-e990e788fd12.gif)
-
-Great! You've set-up the docs, added a navigation menu with dropdown feature, added a sidebar, and customized the links to navigate to different pages. Next up, let's work on the home page.
-
-## Customizing the home page.
-
-Just like every other components, VitePress provides us with markup for building the home page. I've broken it down into three parts: Hero, features, and footer section.
-
-## Hero Section
-
-First, we'll start with the hero section. Replace the Hello World text in the `index.md` page with the following markup.
-
-```bash
-# docs/index.md
----
-layout: home
-
-hero:
-  name: Adocs
-  text: Static docs template built with VitePress.
-  image:
-    src: /logo-big.svg
-    alt: Adocs logo
-  tagline: A free to use template for creating docs for your projects
-  actions:
-    - theme: brand
-      text: Get Started
-      link: /get-started
-    - theme: alt
-      text: View on GitHub
-      link: https://github.com/evavic44/adocs-template
----
-```
-
-## Features Section
-
-Additionally, you can also add a features section after the hero section. Simply paste the code below under the hero objects.
-
-```bash
-# /docs/index.md
----
-link: https://github.com/evavic44/adocs-template
-
-features:
-  - icon: ⚡️
-    title: Adocs, The DX that can't be beat
-    details: Lorem ipsum...
-  - icon: 🎉
-    title: Power of Vue meets Markdown
-    details: Lorem ipsum...
-  - icon: 🔥
-    title: Simple and minimal, always
-    details: Lorem ipsum...
-  - icon: 🎀
-    title: Stylish and cool
-    details: Lorem ipsum...
----
-```
-
-### Output
-
-![hero-redesign](https://user-images.githubusercontent.com/62628408/201540116-6546ba1f-dc43-4490-a6e5-b513eaf3ced6.png)
-
-## Footer
-
-You can add a footer message on the bottom of the page but this will only show up in the home page.
-
-::: warning
-The footer will not be displayed when the SideBar is visible.
-To add the footer component, go to the `config.js file` and paste the markup inside the `themeConfig` object
-:::
-
-```js
-// .vitepress/config.js
- footer: {
-   message: "Released under the MIT License.",
-   copyright: "Copyright © 2022-present Adocs",
- },
-```
-
-### Output
-
-![footer](https://user-images.githubusercontent.com/62628408/201540337-4472a86e-f5cd-42d4-b40d-da1199148d2d.png)
-
-Aside from the markup, you can also customize the components using custom CSS to change things like fonts family, colors, layout, ETC.
-
-## Custom CSS
-
-The default theme CSS is customized by overriding root level CSS variables. If you want, you can check out the full list of [css variables customizable](https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css).
-
-To do get started, create a `.vitepress/theme directory`, and inside this theme folder, add an `index.js` and `custom.css` file. If you've been following along, you can use the terminal command below to do this quickly.
-
-```bash
-mkdir docs/.vitepress/theme && touch docs/.vitepress/theme/index.js && touch docs/.vitepress/theme/custom.css
-```
-
-If you ran into any issues with the terminal command, just create the files manually and move on to the next step.
-
-Here's an overview of the folder structure.
-
-```bash
-docs/
-├── .vitepress/
-│   ├── config.js
-│   └── theme/
-│       ├── index.js
-│       └── custom.css
-├── public/
-│   └── logo.svg
-├── about.md
-├── contact.md
-├── guide.md
-├── configs.md
-└── get-started.md
-```
-
-After creating these files, inside the `.vitepress/theme/index.js file`, paste the import commands.
-
-```js
-// .vitepress/theme/index.js
-import DefaultTheme from "vitepress/theme";
-import "./custom.css";
-
-export default DefaultTheme;
-```
-
-### Color Theme
-
-The colors are controlled by the CSS variables. You can simply replace them with any colors you want.
-
-::: tip
-This color has a provision for both light and dark mode. So make sure you change them accordingly.
-:::
-
-Here's an example of my custom colors
-
-```css
-/* .vitepress/theme/custom.css */
-
-:root {
-  --vp-c-brand: rgb(255, 115, 64);
-  --vp-c-brand-light: rgb(255, 87, 25);
-  --vp-c-brand-lighter: rgb(255, 115, 64);
-  --vp-c-brand-dark: #ff622d;
-  --vp-c-brand-darker: rgb(226, 60, 0);
-
-  --vp-c-sponsor: #fd1d7c;
-}
-```
-
-If you don't see the effects immediately, try ending the server and starting it again.
-
-Aside from the color themes, you can also override other things like, font family, typography, layout, breakpoints, etc.
-
-## Fonts
-
-[Google fonts](https://fonts.google.com/) can be imported inside the CSS file to override the default font family.
-
-```css
-@import url(https://fonts.googleapis.com/css?family=Space+Mono:regular,italic,700,700italic);
-@import url(https://fonts.googleapis.com/css?family=Space+Grotesk:regular,italic,700,700italic);
-
-:root {
-  --vp-c-brand: #ff7340;
-  --vp-c-brand-light: #ff5719;
-  --vp-c-brand-lighter: #ff7340;
-  --vp-c-brand-lighter: rgba(255, 135, 23, 0.25);
-  --vp-c-brand-dark: #ff622d;
-  --vp-c-brand-darker: #e23c00;
-
-  --vp-c-sponsor: #fd1d7c;
-
-  /* Typography */
-  --vp-font-family-base: "Space Grotesk", "Inter var experimental", "Inter var",
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-
-  /* Code Snippet font */
-  --vp-font-family-mono: "Space Mono", Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-```
-
-With the `--vp-font-family-base` variable you can change the main font and `--vp-font-family-mono,` the font for code snippets.
-
-### Output
-
-![banner](https://user-images.githubusercontent.com/62628408/201538130-a1008969-06ae-4aad-9ea0-b77384d6bac1.png)
-
-You've successfully customized the theme and changed the font family using CSS. Though there's more you can do in regards to styling, but at this point, I'm sure it's clearer how you can customize your docs with CSS. Let's discuss hosting in the next section.
-
-## Hosting
-
-You can publish or host your docs site when you're done to different platforms like: [Netlify](https://netlify.com/), [Vercel](https://vercel.com), [AWS Amplify](https://aws.amazon.com/amplify/), etc.
-
-First, run the build command
-
-```bash
-npm run docs:build
-```
-
-This should create a new dist folder that contains all the static files of your docs. In your hosting service, add these commands to their respective fields.
-Build command: npm run docs:build
-Output directory: docs/.vitepress/dist
-
-This should create a new `dist` folder that contains all the static files of your docs. In your hosting service, add these commands to their respective fields.
-
-- Build command: `npm run docs:build`
-- Output directory: `docs/.vitepress/dist`
-
-![deploy-settings-vercel](https://user-images.githubusercontent.com/62628408/201540859-095ea3c0-5d97-4eb4-98a5-2601149d96ed.png)
-
-After editing the settings, save, and deploy.
-
-## Conclusion
-
-In this tutorial, you've set-up a full-fledged documentation site and customized it using CSS and VitePress built-in components. However, this tutorial only covers a fragment of what is possible with VitePress, to learn more, check out the VitePress docs.
-
-## Resources
-
-- [Live Demo](https://adocs.vercel.app)
-- [GitHub Repo](https://github.com/Evavic44/adocs)
-
-<hr>
-
-If you are an open source ardent like myself or you enjoy hearing about such cool projects, do follow me on my socials so you don't miss my next post. Cheers. 🍷
-
-[GitHub](https://github.com/evavic44) [Twitter](https://twitter/.com/victorekea) [Blog](https://eke.hashnode.dev) [Portfolio](https://victoreke.com)
+###### Filtros
+La consulta de datos se realiza en base a los filtros seleccionados, los filtros son:
+- Almacén (Obligatorio)
+- Proveedor
+  - Tipo de Proveedor (Principal o Secundario), por default Principal
+- Lineas
+- Porcentaje de minimo sugerido, por default 65%
+- Opcion para administrar (Máximo o Mínimo)
+
+###### Máximos General
+Esta opción permite administrar los máximos usando para el cálculo del **Máximo Sugerido** los días de clasificación, si no se selecciona un proveedor por default se toman los días de **clasificación seco**, en el caso que si se seleccionó un proveedor se tomaran los días dependiendo de su configuración si es un proveedor de frio o seco
+Al hacer clic en el botón **Consultar** se muestra la información:
+
+- Se muestra el **Tipo de sucursal**, para que al momento de estar asignando máximos se pueda tener referencia el tamaño de la sucursal que se afectara
+- Se muestra la **clasificación**, donde se puede ver la cantidad de días de inventario que tiene configurado cada clasificación, en esta parte es posible cambiar la cantidad de días, haciendo doble clic sobre el número de días (A) convirtiendo en editable la cantidad, se debe borrar e ingresar la nueva cantidad y después se tiene que hacer clic sobre el botón Guardar (B) y si se guardó correctamente se muestra un mensaje indicándolo y automáticamente consulta nuevamente con la nueva configuración, si se hace clic en el botón cancelar regresara a los días que tenía configurado originalmente
+- Se muestra la opción de **<a id="excepciones">Aplicar Excepciones</a>**, esto se muestra si en el periodo en curso existen claves con excepciones, proceso realizado en [Excepciones de Artículos](#excepcionesArt), primero se valida si el usuario tiene el permiso para aplicar excepciones y si tiene permisos, en el grid las claves que tengan excepciones en las columnas de periodos se mostraran con un fondo color grid y estas no se tomaran en cuenta para el cálculo del máximo sugerido y se recalculara el máximo sugerido aplicando la regla de excluir los periodos, si no tiene permisos solo se mostrara un mensaje
+- Se muestra el botón **Guardar Max Sugerido** (C), este botón tomara la cantidad de la columna máximo sugerido y actualiza el máximo de cada artículo con esa cantidad, ignorando todas las claves que tienen en la columna **Max** del grid el valor de **-1**. Cuando se modifica un valor de la columna **Max** del grid este botón cambia su nombre por **Guardar Cambios** esto significa que solo actualizara el máximo de los artículos que se modificaron manualmente
+> Estas funciones solo se pueden ejecutar si el usuario tienen asignado el permiso ```usrinsert```
+![Configuracion](/maxalmacen/header.png)
+
+**Grid Artículos**
+En grid se muestran todos los artículos de acuerdo a los filtros seleccionados, cuando no se selecciona un proveedor muestra los artículos excluyendo los que tienen configurado un proveedor de fríos y que pertenecen a proveedores directos, en caso contrario muestra todos los artículos que tenga configurado el proveedor dependiendo de si se filtra por proveedor principal o secundario<br>
+
+El orden de las columnas del grid es el siguiente: 
+| Columna | Descripción |
+| :----   | :----       |
+| Clave, Descripcion | Clave del articulo y nombre del articulo |
+| Clasif | Clasificación del artículo de seco o frio |
+| Tipo | Tipo de almacén |
+| Directo | Indica con la letra **D** si es un artículo de un proveedor directo |
+| Columnas de periodos | Muestra la cantidad de artículos vendidos de los últimos 4 meses |
+| Prom | Promedio de ventas de los últimos 4 meses |
+| Mayor | La venta más alta de los últimos 4 meses |
+| Exis | Existencia actual del artículo en el almacén seleccionado |
+| Max | Máximo actual del articulo |
+| Sugerido | [Formula Máximo Sugerido](#formula) |
+| Días Max | Días de inventario, este valor se obtiene aplicando la siguiente formula: _(máximo/promedio)*30.4_|
+| Min | Mínimo actual del artículo, en el almacén seleccionado | 
+| Min. Sugerido | Mínimo sugerido por el sistema, aplicando la siguiente formula: _(máximo/100)*porcentaje especificado en el filtro, por default 65_ | 
+| Exce | Diferencia entre la existencia y el máximo actual del articulo | 
+
+En la columna **sugerido** se podrán encontrar dos colores; 
+- Verde, significa que el sugerido por el sistema es mayor al máximo actual
+- Rojo, significa que el sugerido es menor o igual al promedio
+Esta columna tiene la opción de que al hacer doble clic sobre el valor sugerido en automático se copia el sugerido a la columna de máximo y cuando se coloca le mouse en el nombre de la columna se muestra un mensaje indicando el significado de los colores explicados anteriormente (A)
+
+Esta columna tiene la opción de que al hacer doble clic sobre el valor sugerido en automático se copia el sugerido a la columna de máximo y cuando se coloca le mouse en el nombre de la columna se muestra un mensaje indicando el significado de los colores explicados anteriormente
+El grid en la parte superior se encuentra una caja de texto para poder filtrar por clave o nombre de articu 
+En la primera columna del grid se encuentran un checkbox (C) que permite seleccionar la clave del articulo y es utilizado para cuando se desea [Cambiar Clasificación](#changeClasif) a un rango de artículos
+
+Las opciones del menú del grid son:
+- [Consultar articulo por almacén](#consulArt)
+- [Desplazamiento Diario](#desplDiario)
+- [Cambiar Clasificación](#changeClasif)
+
+###### Formula Máximo Sugerido {#formula}
+_maxSugerido = (venta / 30.4) * dias_
+
+Si la venta de los dos últimos dos meses es igual a 0, el máximo sugerido es 0 \
+Para obtener el valor de **venta** se realiza de la siguiente manera:
+1. Si la venta del último mes es mayor al promedio, **venta** es igual a la venta del último mes
+2. Si el punto 1 no se cumple, se valida si el promedio es mayor a la venta del último mes multiplicado por 2, **venta** es igual a promedio dividido entre 2, en caso contrario **venta** es igual a promedio
+
+Para obtener el valor de **dias** se realiza de la siguiente manera:
+Si el proveedor es directo se toman el valor configurado en ```de_almac.num_dat='DD'``` en caso contrario se toma el valor de ```de_almac.num_dat='DC'``` del almacén seleccionado
+
+Después de obtener el valor de **venta** y de **dias**, se deben aplicar las siguientes validaciones:
+1. Máximo sugerido mayor a 0
+2. Máximo sugerido menor a piezas por caja
+3. Clave de artículo sea clave maestra
+4. La división del total de piezas por caja entre la venta mayor sea menor o igual a 1.1
+
+Si las 4 validaciones anteriores se cumplen, el valor de la columna **sugerido** será el resultado de la formula, en caso contrario será el total de piezas de la caja del artículo
+
+###### Máximos o Mínimos
+Para cuando se selecciona la opción Máximos o Mínimos, de las opciones Cambiar del filtro, tienen la funcionalidad de Máximos General, con la diferencia de que en estas opciones el sugerido se calcula en base a los **Días Cedis** o **Días Directos** y para la opción mínimo como su nombre lo indica, solo funcionan para administrar los mínimos por articulo y por almacén
+
+## Menú Grid
+
+## Consultar articulo por almacén {#consulArt}
+Función que permite visualizar la información que se visualiza en el grid principal, pero por el artículo seleccionado por todos los almacenes. Para la columna sugerido en la [Formula Máximo Sugerido](#formula) se explica que se toma el día del almacén seleccionado, pero para este caso se toma el día que tenga configurado cada almacén que se muestra en el grid
+
+En la parte superior se encuentran las siguientes funciones:
+- **Días Cedis y Días Directos:** Estos son los días del almacén seleccionado en el filtro inicial, y es utilizado para cuando se desea recalcular el sugerido por el sistema con una misma cantidad de Días Cedis o Días Directos para todos los almacenes, esto no actualiza los días configurado para cada almacén. Para activar la opción de recalcular solo se debe hacer doble clic sobre la cantidad de días (A), escribir la nueva cantidad y clic en el botón Recalcular
+- **[Aplicar Excepciones de Artículos](#excepciones)**
+- **Copiar Máximos Desde:** Esta función permite copiar la configuración de máximos y mínimos de un artículo al artículo seleccionado, es utilizado en casos cuando un artículo cambia de presentación y se tiene que crear un artículo nuevo. En el grid se mostrarán los nuevos máximos y mínimos y al hacer clic en el botón **Guardar Max. General** (B) se guardarán los máximos y mínimos
+
+![Articulos por almacen](/maxalmacen/artalmac.png)
+
+En el grid se muestran todos los almacenes y se heredan las mismas funciones del grid de artículos, solo se agregó una columna más que indica el tamaño de la sucursal y en la columna Max al escribir una cantidad en la parte inferior derecha se muestra un punto en color azul (A) y al hacer clic se cambiara el curso por un símbolo de más (B) y al arrastrar sobre las otras filas se copia el valor sobre las filas seleccionadas (C) 
+![Articulos por almacen](/maxalmacen/artalmac2.png)
+
+## Desplazamiento Diario {#desplDiario}
+Función que muestra la venta diaria del articulo seleccionado, por default se muestran 30 días atrás a partir del día en curso. La información se representa en una gráfica, mostrando cantidad, precio de venta y existencia por día. Esta función también tiene la posibilidad de mostrar los planes que haya tenido el artículo en las fechas que se muestran, y si el articulo tiene planes se representa en la gráfica con una línea, desde el día que inicia hasta donde termina el plan (A)
+Si existe un plan se puede hacer clic sobre un punto de la línea y debajo de la gráfica se mostrará información del plan (B) y para quitar la información del plan se tiene que hacer clic sobre otro punto de la gráfica
+
+###### Botones de la ventana Desplazamiento Diario
+
+**30 días atrás:** Como su nombre lo indica, muestra 30 días atrás de venta \
+**30 días adelante:** Como su nombre lo indica, muestra 30 días hacia adelante de venta \
+**Ver Tabla:** Cambia de la vista de grafica a la vista con el grid mostrando las columnas, para regresar a la vista grafica se tiene que hacer clic en el botón Ver Gráfica \
+**Existencia Por Almacén:**  Consulta el articulo por todos los almacenes, por todos los días del mes en curso indicando por día la existencia que había, al final del grid se puede ver la cantidad de días que estuvo en ceros y la cantidad de días que tuvo negados el almacén, para regresar a la vista de desplazamiento se debe hacer clic en el botón Regresar que se encuentra en la parte superior del grid
+
+Si la clave del usuario no existe en ```ma_prvus``` no podrá consultar la información y se le mostrara un mensaje indicando que no tiene permisos para consultar
+![Desplazamiento Diario](/maxalmacen/desplazamiento.png)
+
+:::details Query
+  ```sql
+    --Venta por dia
+    select a.*, round((a.total + .000001)/(a.cantid + .000001), 2) as precio from 
+    (select trim(a.cve_art) as cve_art, a.f_movto, day(a.f_movto) as dia, trim(b.descri)||' '||b.pza_caj||'/'||trim(b.presen) as articulo, sum(a.can_vta) as cantid, sum(a.imp_vta) as total
+    from cn_artvpd a, ma_artic b, ma_prvus c 
+    where a.cve_art='160468' 
+    and a.f_movto between TO_DATE('03-01-2023', '%m-%d-%Y') and TO_DATE('03-31-2023','%m-%d-%Y') 
+    and a.cve_prv='007818'     
+    and b.clave=a.cve_art and c.cve_usu='90154' 
+    and a.cve_vnd in (select cve_vnd from de_vendd where num_dat='AV' and dato='594')
+    and trim(c.cve_prv)=case when (select cve_prv from ma_prvus where cve_usu='90154' and cve_prv='999999') == '999999' then '999999' else trim(a.cve_prv) end    
+    and c.cns_sn='S' group by 1,2,3,4 order by 2 desc) a
+
+    --Existencia por dia
+    select * from cn_exdia where num_per='202303' and can_cer >= 0 and cve_alm='594' and cve_art='160468'
+  ```
+  :::
+
+## Cambiar Clasificación {#changeClasif}
+
+Función que permite cambiar la clasificación de los artículos, esta clasificación es la que tiene configurada el articulo dependiendo si es clasificación Seco o Frio.  Se puede realizar por un solo artículo o seleccionar varios artículos haciendo clic en el checkbox del grid, después se muestra una venta para seleccionar la nueva clasificación (A), después pregunta si el cambio será para todos los almacenes o solo para el almacén seleccionado (B) al confirmar en la parte superior del grid se mostrará una barra de progreso (C) y al terminar se mostrará un mensaje de confirmación en caso de error se mostrará el mensaje
+![Clasificacion](/maxalmacen/clasificacion.png)
+
+:::details Query
+  ```sql
+    --Tabla: ma_exist.clasif
+  ```
+  :::
