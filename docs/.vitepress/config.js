@@ -5,36 +5,15 @@ export default {
   themeConfig: {
     logo: "/next.webp",
     siteTitle: "nextcloud",
-    // Navbar Link
-    nav: [
-      { text: "Documentación", link: "/modulos/maxalmacen" }
-    ],
-    // Sidebar
     sidebar: [
       {
-        text: "Section A",
-        collapsible: true,
+        text: 'Inventario',
+        collapsed: true,
         items: [
-          { text: "Introduction", link: "/introduction" },
-          { text: "Getting Started", link: "/getting-started" },
-        ],
-      },
-      {
-        text: "Section B",
-        collapsible: false,
-        items: [
-          { text: "Introduction", link: "/introduction" },
-          { text: "Getting Started", link: "/getting-started" },
-        ],
-      },
-      {
-        text: "Section C",
-        collapsible: true,
-        items: [
-          { text: "Introduction", link: "/introduction" },
-          { text: "Getting Started", link: "/getting-started" },
-        ],
-      },
+          { text: 'Formulas', link: '/modulos/formulas' },
+          { text: 'Máximos Almacén', link: '/modulos/maxalmacen' }
+        ]
+      }
     ],
     markdown: {
       theme: "material-palenight",

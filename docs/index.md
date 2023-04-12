@@ -3,8 +3,8 @@ layout: home
 
 # Hero section
 hero:
-  name: nextcloud
-  text: Documentación nextcloud
+  name: Documentación nextcloud
+  text: ''
   image:
     src: /next.webp
     alt: Docs logo
@@ -16,3 +16,11 @@ head:
       type: image/webp
       href: next.webp
 ---
+
+<!-- Custom home layout -->
+<div class="custom-layout">
+  <h1>Inventarios</h1>
+  <hr>
+  <a href="/nextcloud-docs/modulos/formulas.html" class="btn">- Formulas</a>
+  <a href="/nextcloud-docs/modulos/formulas.html" class="btn">- Máximos Almacén</a>
+</div>

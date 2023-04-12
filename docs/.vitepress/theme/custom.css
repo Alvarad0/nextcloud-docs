@@ -8,7 +8,6 @@
   --vp-c-brand-lighter: rgba(255, 135, 23, 0.25);
   --vp-c-brand-dark: #ff622d;
   --vp-c-brand-darker: #e23c00;
-
   --vp-c-sponsor: #fd1d7c;
 
   /* Typography */
@@ -47,5 +46,29 @@ details {
 }
 
 mark {
-  background-color: rgba(255, 135, 23, 0.25);
+  background-color: var(--vp-c-brand-lighter);
+}
+
+/* Custom Stlye */
+.custom-layout {
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  padding: 1.5rem;
+  min-height: 400px;
+  max-width: 1152px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.custom-layout h1 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.5rem 0;
+}
+
+.custom-layout .btn {
+  display: block;
+  color: var(--vp-button-brand-bg);
+  cursor: pointer;
+  font-weight: bold;
 }
