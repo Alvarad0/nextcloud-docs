@@ -22,5 +22,5 @@ head:
   <h1>Inventarios</h1>
   <hr>
   <a href="/nextcloud-docs/modulos/formulas.html" class="btn">- Formulas</a>
-  <a href="/nextcloud-docs/modulos/formulas.html" class="btn">- Máximos Almacén</a>
+  <a href="/nextcloud-docs/modulos/maxalmacen.html" class="btn">- Máximos Almacén</a>
 </div>

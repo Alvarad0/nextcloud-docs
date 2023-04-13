@@ -158,6 +158,7 @@ Al hacer clic en el botón **Consultar** se muestra la información:
 - Se muestra la opción de **<a id="excepciones">Aplicar Excepciones</a>**, esto se muestra si en el periodo en curso existen claves con excepciones, proceso realizado en [Excepciones de Artículos](#excepcionesArt), primero se valida si el usuario tiene el permiso para aplicar excepciones y si tiene permisos, en el grid las claves que tengan excepciones en las columnas de periodos se mostraran con un fondo color grid y estas no se tomaran en cuenta para el cálculo del máximo sugerido y se recalculara el máximo sugerido aplicando la regla de excluir los periodos, si no tiene permisos solo se mostrara un mensaje
 - Se muestra el botón **Guardar Max Sugerido** (C), este botón tomara la cantidad de la columna máximo sugerido y actualiza el máximo de cada artículo con esa cantidad, ignorando todas las claves que tienen en la columna **Max** del grid el valor de **-1**. Cuando se modifica un valor de la columna **Max** del grid este botón cambia su nombre por **Guardar Cambios** esto significa que solo actualizara el máximo de los artículos que se modificaron manualmente
 > Estas funciones solo se pueden ejecutar si el usuario tienen asignado el permiso ```usrinsert```
+
 ![Configuracion](/maxalmacen/header.png)
 
 **Grid Artículos**
