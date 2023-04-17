@@ -3,7 +3,7 @@
 ## Ruta
 Inicio > Inventarios > Catalogos > Formulas
 
-## Funcinalidad
+## Funcionalidad
 Modulo para administrar fórmulas de producción, desde este módulo se tendrá la posibilidad de crear, editar y desactivar/activar formulas
 
 ## Desarrollo 

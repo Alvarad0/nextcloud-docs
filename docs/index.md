@@ -21,6 +21,7 @@ head:
 <div class="custom-layout">
   <h1>Inventarios</h1>
   <hr>
-  <a href="/nextcloud-docs/modulos/formulas.html" class="btn">- Formulas</a>
-  <a href="/nextcloud-docs/modulos/maxalmacen.html" class="btn">- Máximos Almacén</a>
+  <a href="/nextcloud-docs/modulos/inventarios/formulas.html" class="btn">- Formulas</a>
+  <a href="/nextcloud-docs/modulos/inventarios/consultaCarga.html" class="btn">- Consulta de Carga</a>
+  <a href="/nextcloud-docs/modulos/inventarios/maxalmacen.html" class="btn">- Máximos Almacén</a>
 </div>
