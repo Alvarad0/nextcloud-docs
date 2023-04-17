@@ -10,9 +10,9 @@ export default {
         text: 'Inventario',
         collapsed: true,
         items: [
-          { text: 'Formulas', link: '/modulos/inventarios/formulas' },
-          { text: 'Consulta de Carga', link: '/modulos/inventarios/consultaCarga' },
-          { text: 'Máximos Almacén', link: '/modulos/inventarios/maxalmacen' }
+          { text: 'Formulas', link: '/modulos/Inventarios/formulas' },
+          { text: 'Consulta de Carga', link: '/modulos/Inventarios/consultaCarga' },
+          { text: 'Máximos Almacén', link: '/modulos/Inventarios/maxalmacen' }
         ]
       }
     ],
