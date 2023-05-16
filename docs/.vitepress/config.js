@@ -1,7 +1,19 @@
-export default {
+import { SearchPlugin } from "vitepress-plugin-search"
+import { defineConfig } from "vitepress"
+
+export default defineConfig({
   title: "nextcloud",
   description: "Documentación nextcloud",
   base: '/nextcloud-docs/',
+  vite: { 
+    plugins: [
+      SearchPlugin({
+        previewLength: 62,
+        buttonLabel: "Buscar",
+        placeholder: "Buscar Documentación"
+      })
+    ]
+  },
   themeConfig: {
     logo: "/next.webp",
     siteTitle: "nextcloud",
@@ -19,6 +31,6 @@ export default {
     markdown: {
       theme: "material-palenight",
       lineNumbers: true,
-    },
-  },
-};
+    }
+  }
+})
