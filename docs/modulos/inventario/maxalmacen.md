@@ -19,7 +19,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 | Días para Surtir de CEDIS Seco | ```de_almac.num_dat='DC'``` | Podemos tener 21 dias para que el CEDIS surta a la tienda el 100% de su máximo |
 | Días para Surtir de CEDIS Frio | ```de_almac.num_dat='DF'``` | Aplica para los proveedores que tengan el adicional CF |
 | Días para Surtir el producto Directo de Prv	 | ```de_almac.num_dat='DD'``` | Cuando un proveedor como Bimbo, Coca, etc nos estaría surtiendo. Depende de que el proveedor tenga el adicional de proveedor directo |
-| Tamaño de Almacén Tipo | ```de_almac.num_dat='TA'``` | Para realizar los cálculos de máximo, si es **C**hica, **M**ediana o **G**rande |
+| Tamaño de Almacén | ```de_almac.num_dat='TA'``` | Los tamaños se clasifican de la siguiente manera: **C** = Chica, **M** = Mediana, **G** = Grande, **O** = Mostrador, **A** = Abasto, **V** = Conveniencia, **I** = Mini, **R** = Resurtido |
 | Surte desde CEDIS Frio | ```de_almac.num_dat='CF'``` | Los proveedores que tengan una **S** son los únicos que manejarán productos del CEDIS de frío |
 | Días para Surtir de CEDIS **Seco** x Clasificación | ```de_almac.num_dat in ('D1','D2','D3','D4')``` | Cuando se desea definir los máximos por clasificación de los artículos, hay un cron job que los almacena en ```ma_exist.clasif``` y en base a eso se calculan los A,B,C,D respectivamente |
 | Días para Surtir de CEDIS **Frio** x Clasificación | ```de_almac.num_dat in ('D5','D6','D7','D8')``` | Cuando se desea definir los máximos por clasificación de los artículos, hay un cron job que los almacena en ```ma_exist.clasif``` y en base a eso se calculan los A,B,C,D respectivamente |
