@@ -24,7 +24,9 @@ export default defineConfig({
         items: [
           { text: 'Formulas', link: '/modulos/inventario/formulas' },
           { text: 'Consulta de Carga', link: '/modulos/inventario/consultaCarga' },
-          { text: 'Máximos Almacén', link: '/modulos/inventario/maxalmacen' }
+          { text: 'Máximos Almacén', link: '/modulos/inventario/maxalmacen' },
+          { text: 'Ranking de Carga', link: '/modulos/inventario/rankCarga' },
+          { text: 'Estadistica de Carga', link: '/modulos/inventario/estadisticaCarga' },
         ]
       }
     ],
