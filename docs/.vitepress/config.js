@@ -29,6 +29,8 @@ export default defineConfig({
           { text: 'Estadistica de Carga', link: '/modulos/inventario/estadisticaCarga' },
           { text: 'Nivel de Servicio', link: '/modulos/inventario/nivelServicio' },
           { text: 'Existencias Costeadas', link: '/modulos/inventario/existCosteadas' },
+          { text: 'Reporte de Caducidad', link: '/modulos/inventario/reporteCaducidad' },
+          { text: 'Slotting', link: '/modulos/inventario/slotting' },
         ]
       }
     ],

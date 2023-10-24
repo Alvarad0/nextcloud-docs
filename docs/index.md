@@ -37,6 +37,11 @@ head:
       <a href="/nextcloud-docs/modulos/inventario/nivelServicio.html" class="btn">Nivel de Servicio</a>
       <a href="/nextcloud-docs/modulos/inventario/existCosteadas.html" class="btn">Existencias Costeadas</a>
     </details>
+    <details>
+      <summary>WMS</summary>
+      <a href="/nextcloud-docs/modulos/inventario/reporteCaducidad.html" class="btn">Reporte de Caducidad</a>
+      <a href="/nextcloud-docs/modulos/inventario/slotting.html" class="btn">Slotting</a>
+    </details>
   <div>
   </div>
 </details>
