@@ -13,15 +13,15 @@ En la parte superior izquierda se encuentra dos botones:
 - Al hacer clic en el icono (A) se muestra el modulo en pantalla completa
 - Al hacer clic en el icono (B) se muestra un modal para configurar turno y foto del empleado
 
-![empleados](/rankcarga/empleados.png)
+![empleados](/rankcarga/empleados.png){data-zoomable}
 
 En la venta de configuración se muestran dos opciones:
 
 **Turnos**: En esta opción se podrá seleccionar el turno y el almacén a consultar y al hacer clic en el botón asignar turno se actualizarán los datos
-![turno](/rankcarga/turno.png)
+![turno](/rankcarga/turno.png){data-zoomable}
 
 **Fotos**: En esta opción se puede agregar la foto del empleado, primero se escribe la clave del empleado y la clave del almacén, luego se debe hacer clic en el botón **Consultar** para validar que el empleado esté relacionado al almacén seleccionado. Si el empleado existe se muestra la información y se activa el botón **Seleccionar Foto**, al hacer clic se podrá buscar la foto y se mostrara una vista previa de la foto que se va subir. Si la foto es correcta se debe hacer clic en el botón **Guardar Foto**. Si el proceso se realiza correctamente se mostrara un mensaje de confirmación en caso contrario se mostrara un mensaje de error
-![foto](/rankcarga/foto.png)
+![foto](/rankcarga/foto.png){data-zoomable}
 
 :::details Query
   ```sql

@@ -82,3 +82,21 @@ mark {
   width: 100%;
   height: 40px;
 }
+
+summary {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.custom-layout details {
+  margin: .5rem;
+}
+
+.custom-layout a {
+  padding-left: 2rem;
+}
+
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 999;
+}

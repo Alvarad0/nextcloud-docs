@@ -27,6 +27,8 @@ export default defineConfig({
           { text: 'Máximos Almacén', link: '/modulos/inventario/maxalmacen' },
           { text: 'Ranking de Carga', link: '/modulos/inventario/rankCarga' },
           { text: 'Estadistica de Carga', link: '/modulos/inventario/estadisticaCarga' },
+          { text: 'Nivel de Servicio', link: '/modulos/inventario/nivelServicio' },
+          { text: 'Existencias Costeadas', link: '/modulos/inventario/existCosteadas' },
         ]
       }
     ],

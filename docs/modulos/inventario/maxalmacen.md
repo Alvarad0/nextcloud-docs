@@ -30,7 +30,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 
   Esta función permite consultar una bitacora de cambios de máximos, cuando el cambio se realiza desde el modulo Orden de Compra, se puede filtrar por rango de fechas, por artículo y por clave de almacén, la siguiente imagen es un ejemplo de como se visualiza la información
 
-  ![Grid Bitacora de maximos](/maxalmacen/bitacora_maximos.jpg)
+  ![Grid Bitacora de maximos](/maxalmacen/bitacora_maximos.jpg){data-zoomable}
   :::details Query
   ```sql
     select f_movto, cve_alm, cve_art, max_ant, max_nue, cve_usu, obser from ma_bitmax 
@@ -44,7 +44,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 
   Esta función permite consultar un listado de todos los articulos que dependen de una clave maestra, por ejemplo todos los .01, .02, etc. La siguiente imagen es un ejemplo de como se visualiza la información
 
-  ![Grid Paqueria](/maxalmacen/paqueteria.png)
+  ![Grid Paqueria](/maxalmacen/paqueteria.png){data-zoomable}
   :::details Query
   ```sql
     select a.cve_art,trim(b.descri)||' '||b.pza_caj||'/'||b.presen as articulo,a.dato,
@@ -64,7 +64,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 
   El grid cuenta con dos dos opciones en su menu, al hacer clic derecho sobre un artículo se podra consultar el [Desplazamiento Diario](#desplDiario) y [Cambiar Clasficacion](#changeClasif)
 
-  ![Grid Paqueria](/maxalmacen/tendencia.png)
+  ![Grid Paqueria](/maxalmacen/tendencia.png){data-zoomable}
   :::details Query
   ```sql
     select clave,articulo,imp_vta,round(( ((n*sum_xy)-(sum_x*sum_y))/(sqrt(((n*sum_x2)-(sum_x*sum_x))*((n*sum_y2)-(sum_y*sum_y)))) )*100,2) as tendencia
@@ -85,7 +85,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
   Esta función permite agregar los artículos a un periodo para que no se tomen en cuenta para el cálculo del máximo sugerido, es utilizada para agregar los artículos de temporalidad.
   Primero se tiene que seleccionar un periodo y luego subir el archivo de Excel con las claves, el formato de las columnas es: Cve. Art y Nombre de Articulo. Cuando el archivo se procesa se muestra un grid con las claves y al final de las columnas se muestra un icono para eliminar el artículo (A). Y al hacer clic en el botón Guardar Artículos se insertarán los artículos en el periodo seleccionado. La función solo la pueden aplicar los usuarios que tienen asignado el permiso ```usrinsert```
 
-  ![Grid Paqueria](/maxalmacen/excepciones.png)
+  ![Grid Paqueria](/maxalmacen/excepciones.png){data-zoomable}
   | Columna | Descripción |
   | :----    | :----    |
   | cve_art | Almacena la clave del articulo |
@@ -97,7 +97,7 @@ Para poder operar adecuadamente la funcionalidad de máximos en una tienda es im
 
   Esta función consulta todos los artículos que pertenecen a proveedores directos, clasificados como proveedor principal, mostrando la existencia en Cedis, en Tienda y el importe de venta por artículo. Para poder realizar la consulta se debe seleccionar el periodo
 
-  ![Grid Paqueria](/maxalmacen/excepciones.png)
+  ![Grid Paqueria](/maxalmacen/excepciones.png){data-zoomable}
   :::details Query
   ```sql
     select d.existe as exis_cedis, e.existe as exis_tda, trim(a.clave) as cve_prv, trim(a.descri) as proveedor, trim(c.cve_art) as cve_art, trim(h.descri)||' '||h.pza_caj||'/'||h.presen as articulo,
@@ -159,7 +159,7 @@ Al hacer clic en el botón **Consultar** se muestra la información:
 - Se muestra el botón **Guardar Max Sugerido** (C), este botón tomara la cantidad de la columna máximo sugerido y actualiza el máximo de cada artículo con esa cantidad, ignorando todas las claves que tienen en la columna **Max** del grid el valor de **-1**. Cuando se modifica un valor de la columna **Max** del grid este botón cambia su nombre por **Guardar Cambios** esto significa que solo actualizara el máximo de los artículos que se modificaron manualmente
 > Estas funciones solo se pueden ejecutar si el usuario tienen asignado el permiso ```usrinsert```
 
-![Configuracion](/maxalmacen/header.png)
+![Configuracion](/maxalmacen/header.png){data-zoomable}
 
 **Grid Artículos**
 En grid se muestran todos los artículos de acuerdo a los filtros seleccionados, cuando no se selecciona un proveedor muestra los artículos excluyendo los que tienen configurado un proveedor de fríos y que pertenecen a proveedores directos, en caso contrario muestra todos los artículos que tenga configurado el proveedor dependiendo de si se filtra por proveedor principal o secundario<br>
@@ -228,10 +228,10 @@ En la parte superior se encuentran las siguientes funciones:
 - **[Aplicar Excepciones de Artículos](#excepciones)**
 - **Copiar Máximos Desde:** Esta función permite copiar la configuración de máximos y mínimos de un artículo al artículo seleccionado, es utilizado en casos cuando un artículo cambia de presentación y se tiene que crear un artículo nuevo. En el grid se mostrarán los nuevos máximos y mínimos y al hacer clic en el botón **Guardar Max. General** (B) se guardarán los máximos y mínimos
 
-![Articulos por almacen](/maxalmacen/artalmac.png)
+![Articulos por almacen](/maxalmacen/artalmac.png){data-zoomable}
 
 En el grid se muestran todos los almacenes y se heredan las mismas funciones del grid de artículos, solo se agregó una columna más que indica el tamaño de la sucursal y en la columna Max al escribir una cantidad en la parte inferior derecha se muestra un punto en color azul (A) y al hacer clic se cambiara el curso por un símbolo de más (B) y al arrastrar sobre las otras filas se copia el valor sobre las filas seleccionadas (C) 
-![Articulos por almacen](/maxalmacen/artalmac2.png)
+![Articulos por almacen](/maxalmacen/artalmac2.png){data-zoomable}
 
 ## Desplazamiento Diario {#desplDiario}
 Función que muestra la venta diaria del articulo seleccionado, por default se muestran 30 días atrás a partir del día en curso. La información se representa en una gráfica, mostrando cantidad, precio de venta y existencia por día. Esta función también tiene la posibilidad de mostrar los planes que haya tenido el artículo en las fechas que se muestran, y si el articulo tiene planes se representa en la gráfica con una línea, desde el día que inicia hasta donde termina el plan (A)
@@ -245,7 +245,7 @@ Si existe un plan se puede hacer clic sobre un punto de la línea y debajo de la
 **Existencia Por Almacén:**  Consulta el articulo por todos los almacenes, por todos los días del mes en curso indicando por día la existencia que había, al final del grid se puede ver la cantidad de días que estuvo en ceros y la cantidad de días que tuvo negados el almacén, para regresar a la vista de desplazamiento se debe hacer clic en el botón Regresar que se encuentra en la parte superior del grid
 
 Si la clave del usuario no existe en ```ma_prvus``` no podrá consultar la información y se le mostrara un mensaje indicando que no tiene permisos para consultar
-![Desplazamiento Diario](/maxalmacen/desplazamiento.png)
+![Desplazamiento Diario](/maxalmacen/desplazamiento.png){data-zoomable}
 
 :::details Query
   ```sql
@@ -269,7 +269,7 @@ Si la clave del usuario no existe en ```ma_prvus``` no podrá consultar la infor
 ## Cambiar Clasificación {#changeClasif}
 
 Función que permite cambiar la clasificación de los artículos, esta clasificación es la que tiene configurada el articulo dependiendo si es clasificación Seco o Frio.  Se puede realizar por un solo artículo o seleccionar varios artículos haciendo clic en el checkbox del grid, después se muestra una venta para seleccionar la nueva clasificación (A), después pregunta si el cambio será para todos los almacenes o solo para el almacén seleccionado (B) al confirmar en la parte superior del grid se mostrará una barra de progreso (C) y al terminar se mostrará un mensaje de confirmación en caso de error se mostrará el mensaje
-![Clasificacion](/maxalmacen/clasificacion.png)
+![Clasificacion](/maxalmacen/clasificacion.png){data-zoomable}
 
 :::details Query
   ```sql
