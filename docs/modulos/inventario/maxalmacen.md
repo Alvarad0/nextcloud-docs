@@ -205,7 +205,11 @@ Para obtener el valor de **venta** se realiza de la siguiente manera:
 2. Si el punto 1 no se cumple, se valida si el promedio es mayor a la venta del último mes multiplicado por 2, **venta** es igual a promedio dividido entre 2, en caso contrario **venta** es igual a promedio
 
 Para obtener el valor de **dias** se realiza de la siguiente manera:
-Si el proveedor es directo se toman el valor configurado en ```de_almac.num_dat='DD'``` en caso contrario se toma el valor de ```de_almac.num_dat='DC'``` del almacén seleccionado
+
+**Máximos General:**, Primero se consultan los días configurados para el almacén, dependiendo de si es proveedor de Cedis Seco o Frio, explicados en la tabla configuraciónes de esta documentación, existen 4 tipos de clasificación (A, B, C y D), después por cada artículo se revisa la clasificación del articulo y dependiendo de la clasificación es el número de días, cuando un artículo no tiene  clasificación se le asigna el número de días de la **Clasificación D**
+
+**Máximos**, se valida si el proveedor es directo se toman el valor configurado en ```de_almac.num_dat='DD'``` en caso contrario se toma el valor de ```de_almac.num_dat='DC'``` del almacén seleccionado
+
 
 Después de obtener el valor de **venta** y de **dias**, se deben aplicar las siguientes validaciones:
 1. Máximo sugerido mayor a 0
